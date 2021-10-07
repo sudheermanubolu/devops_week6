@@ -8,6 +8,5 @@
           <module name="JavadocType">
                <property name="scope" value="public"/>
           </module>
-          <module name="ConstantName"/>
      </module>
 </module>
