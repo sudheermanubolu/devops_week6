@@ -31,26 +31,5 @@ pipeline {
                }
           }
 
-          stage("Docker build") {
-               steps {
-                    sh "docker build -t leszko/calculator:$BUILD_NUMBER ."
-               }
-          }
-
-          stage("Docker login") {
-               steps {
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker-hub-credentials',
-                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                         sh "docker login --username $USERNAME --password $PASSWORD"
-                    }
-               }
-          }
-
-          stage("Docker push") {
-               steps {
-                    sh "docker push leszko/calculator:$BUILD_NUMBER"
-               }
-          }
-
      }
 }
