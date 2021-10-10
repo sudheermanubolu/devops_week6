@@ -1,5 +1,8 @@
 pipeline {
      agent any
+     triggers {
+          pollSCM('* * * * *')
+     }
      stages {
           stage("Compile") {
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
