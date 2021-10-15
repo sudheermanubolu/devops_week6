@@ -90,7 +90,7 @@ pipeline {
                     container("kaniko"){
                     sh "echo 'FROM openjdk:8-jre' > Dockerfile"
                     sh "echo 'COPY ./calculator-0.0.1-SNAPSHOT.jar app.jar' >> Dockerfile"
-                    sh "echo 'ENTRYPOINT ["java", "-jar", "app.jar"]' >> Dockerfile"
+                    sh "echo 'ENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]' >> Dockerfile"
                     sh "mv /mnt/calculator-0.0.1-SNAPSHOT.jar ./calculator-0.0.1-SNAPSHOT.jar"
                }
                }
