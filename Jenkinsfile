@@ -2,7 +2,7 @@ pipeline {
      agent {
           kubernetes {
                cloud 'kubernetes'
-               label 'kubeagent'
+               label 'temp'
                yaml """
   apiVersion: v1
   kind: Pod
