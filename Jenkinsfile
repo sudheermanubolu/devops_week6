@@ -43,67 +43,72 @@ pipeline {
      }
      stages {
           stage("Compile") {
+               container("gradle"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
                     sh "./gradlew compileJava"
                }
+               }
           }
           stage("Unit test") {
+               container("gradle"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
                     sh "./gradlew test"
                }
+               }
           }
           stage("Code coverage") {
+               container("gradle"){
                when { branch 'main' }
                steps {
                     sh "./gradlew jacocoTestReport"
                     sh "./gradlew jacocoTestCoverageVerification"
                }
+               }
           }
           stage("Static code analysis") {
+               container("gradle"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
                     sh "./gradlew checkstyleMain"
                }
+               }
           }
           stage("Package") {
+               container("gradle"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
                     sh "./gradlew build"
+                    sh "mv ./build/libs/calculator-0.0.1-SNAPSHOT.jar /mnt"
+               }
                }
           }
-          stage("Docker build main") {
+          stage("create Dockerfile") {
+               container("kaniko"){
+               when { expression { BRANCH_NAME ==~ /(main|future)/ } }
+               steps {
+                    sh "echo 'FROM openjdk:8-jre' > Dockerfile"
+                    sh "echo 'COPY ./calculator-0.0.1-SNAPSHOT.jar app.jar' >> Dockerfile"
+                    sh "echo 'ENTRYPOINT ["java", "-jar", "app.jar"]' >> Dockerfile"
+                    sh "mv /mnt/calculator-0.0.1-SNAPSHOT.jar ./calculator-0.0.1-SNAPSHOT.jar"
+               }
+               }
+          }
+          stage("kaniko build main") {
+               container("kaniko"){
                when { branch 'main' }
                steps {
-                    sh "docker build -t sudheermanubolu/calculator:1.0 ."
+                    sh "/kaniko/executor --context `pwd` --destination sudheermanubolu/calculator:1.0"
+               }
                }
           }
           stage("Docker build future") {
+               container("kaniko"){
                when { branch 'future' }
                steps {
-                    sh "docker build -t sudheermanubolu/calculator-feature:0.1 ."
+                    sh "/kaniko/executor --context `pwd` --destination sudheermanubolu/calculator-feature:0.1 ."
                }
-          }
-          stage("Docker login") {
-               when { expression { BRANCH_NAME ==~ /(main|future)/ } }
-               steps {
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker-hub-credentials',
-                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                         sh "docker login --username $USERNAME --password $PASSWORD"
-                    }
-               }
-          }
-          stage("Docker push main") {
-               when { branch 'main' }
-               steps {
-                    sh "docker push sudheermanubolu/calculator:1.0"
-               }
-          }
-          stage("Docker push future") {
-               when { branch 'future' }
-               steps {
-                    sh "docker push sudheermanubolu/calculator-feature:0.1"
                }
           }
      }
