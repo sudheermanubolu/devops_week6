@@ -43,51 +43,51 @@ pipeline {
      }
      stages {
           stage("Compile") {
-               container("gradle"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
+                    container("gradle"){
                     sh "./gradlew compileJava"
-               }
+                    }
                }
           }
           stage("Unit test") {
-               container("gradle"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
+                    container("gradle"){
                     sh "./gradlew test"
                }
                }
           }
           stage("Code coverage") {
-               container("gradle"){
                when { branch 'main' }
                steps {
+                    container("gradle"){
                     sh "./gradlew jacocoTestReport"
                     sh "./gradlew jacocoTestCoverageVerification"
                }
                }
           }
           stage("Static code analysis") {
-               container("gradle"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
+                    container("gradle"){
                     sh "./gradlew checkstyleMain"
                }
                }
           }
           stage("Package") {
-               container("gradle"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
+                    container("gradle"){
                     sh "./gradlew build"
                     sh "mv ./build/libs/calculator-0.0.1-SNAPSHOT.jar /mnt"
                }
                }
           }
           stage("create Dockerfile") {
-               container("kaniko"){
                when { expression { BRANCH_NAME ==~ /(main|future)/ } }
                steps {
+                    container("kaniko"){
                     sh "echo 'FROM openjdk:8-jre' > Dockerfile"
                     sh "echo 'COPY ./calculator-0.0.1-SNAPSHOT.jar app.jar' >> Dockerfile"
                     sh "echo 'ENTRYPOINT ["java", "-jar", "app.jar"]' >> Dockerfile"
@@ -96,17 +96,17 @@ pipeline {
                }
           }
           stage("kaniko build main") {
-               container("kaniko"){
                when { branch 'main' }
                steps {
+                    container("kaniko"){
                     sh "/kaniko/executor --context `pwd` --destination sudheermanubolu/calculator:1.0"
                }
                }
           }
           stage("Docker build future") {
-               container("kaniko"){
                when { branch 'future' }
                steps {
+                    container("kaniko"){
                     sh "/kaniko/executor --context `pwd` --destination sudheermanubolu/calculator-feature:0.1 ."
                }
                }
