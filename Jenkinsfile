@@ -56,13 +56,13 @@ pipeline {
                     }
                }
           }
-          stage("Docker push") {
+          stage("Docker push main") {
                when { branch 'main' }
                steps {
                     sh "docker push sudheermanubolu/calculator:1.0"
                }
           }
-          stage("Docker push") {
+          stage("Docker push future") {
                when { branch 'future' }
                steps {
                     sh "docker push sudheermanubolu/calculator-feature:0.1"
