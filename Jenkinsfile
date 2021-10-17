@@ -107,7 +107,7 @@ pipeline {
                when { branch 'future' }
                steps {
                     container("kaniko"){
-                    sh "/kaniko/executor --context `pwd` --destination sudheermanubolu/calculator-feature:0.1 ."
+                    sh "/kaniko/executor --context `pwd` --destination sudheermanubolu/calculator-feature:0.1"
                }
                }
           }
